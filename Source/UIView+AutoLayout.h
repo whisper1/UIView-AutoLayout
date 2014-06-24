@@ -115,14 +115,32 @@ typedef void(^ALConstraintsBlock)(void);    // a block of method calls to the UI
 /** Aligns the view to the same axis of its superview. */
 - (NSLayoutConstraint *)autoAlignAxisToSuperviewAxis:(ALAxis)axis;
 
+/** Aligns the view to the same axis of its superview with an offset. */
+- (NSLayoutConstraint *)autoAlignAxisToSuperviewAxis:(ALAxis)axis withOffset:(CGFloat)offset;
+
 
 #pragma mark Pin Edges to Superview
+
+/** Pins the given edge of the view to the same edge of the superview. */
+- (NSLayoutConstraint *)autoPinEdgeToSuperviewEdge:(ALEdge)edge;
 
 /** Pins the given edge of the view to the same edge of the superview with an inset. */
 - (NSLayoutConstraint *)autoPinEdgeToSuperviewEdge:(ALEdge)edge withInset:(CGFloat)inset;
 
 /** Pins the given edge of the view to the same edge of the superview with an inset as a maximum or minimum. */
 - (NSLayoutConstraint *)autoPinEdgeToSuperviewEdge:(ALEdge)edge withInset:(CGFloat)inset relation:(NSLayoutRelation)relation;
+
+/** Pins the edges of the view to the on-axis edges of its superview. */
+- (NSArray *)autoPinEdgesToSuperviewEdgesOnAxis:(ALAxis)axis;
+
+/** Pins the edges of the view to the on-axis edges of its superview with an inset. */
+- (NSArray *)autoPinEdgesToSuperviewEdgesOnAxis:(ALAxis)axis withInset:(CGFloat)inset;
+
+/** Pins the edges of the view to the edges of its superview. */
+- (NSArray *)autoPinEdgesToSuperviewEdges;
+
+/** Pins the edges of the view to the edges of its superview, excluding one edge. */
+- (NSArray *)autoPinEdgesToSuperviewEdgesExcludingEdge:(ALEdge)edge;
 
 /** Pins the edges of the view to the edges of its superview with the given edge insets. */
 - (NSArray *)autoPinEdgesToSuperviewEdgesWithInsets:(UIEdgeInsets)insets;

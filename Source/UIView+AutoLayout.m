@@ -235,17 +235,40 @@ static BOOL _al_isExecutingConstraintsBlock = NO;
  */
 - (NSLayoutConstraint *)autoAlignAxisToSuperviewAxis:(ALAxis)axis
 {
+    return [self autoAlignAxisToSuperviewAxis:axis withOffset:0.0f];
+}
+
+/**
+ Aligns the view to the same axis of its superview with an offset.
+ 
+ @param axis The axis of this view and of its superview to align.
+ @param offset The offset between the axis of this view and the axis of the superview.
+ @return The constraint added.
+ */
+- (NSLayoutConstraint *)autoAlignAxisToSuperviewAxis:(ALAxis)axis withOffset:(CGFloat)offset
+{
     self.translatesAutoresizingMaskIntoConstraints = NO;
     UIView *superview = self.superview;
     NSAssert(superview, @"View's superview must not be nil.\nView: %@", self);
     NSLayoutAttribute attribute = [UIView al_attributeForAxis:axis];
-    NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:self attribute:attribute relatedBy:NSLayoutRelationEqual toItem:superview attribute:attribute multiplier:1.0f constant:0.0f];
+    NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:self attribute:attribute relatedBy:NSLayoutRelationEqual toItem:superview attribute:attribute multiplier:1.0f constant:offset];
     [constraint autoInstall];
     return constraint;
 }
 
 
 #pragma mark Pin Edges to Superview
+
+/**
+ Pins the given edge of the view to the same edge of the superview.
+ 
+ @param edge The edge of this view and the superview to pin.
+ @return The constraint added.
+ */
+- (NSLayoutConstraint *)autoPinEdgeToSuperviewEdge:(ALEdge)edge
+{
+    return [self autoPinEdgeToSuperviewEdge:edge withInset:0.0f relation:NSLayoutRelationEqual];
+}
 
 /**
  Pins the given edge of the view to the same edge of the superview with an inset.
@@ -282,6 +305,81 @@ static BOOL _al_isExecutingConstraintsBlock = NO;
         }
     }
     return [self autoPinEdge:edge toEdge:edge ofView:superview withOffset:inset relation:relation];
+}
+
+/**
+ Pins the edges of the view to the on-axis edges of its superview.
+ ALAxisHorizontal corresponds to leading and trailing edge constraints, and ALAxisVertical corresponds to top and bottom edge constraints.
+ 
+ @param axis The axis on which the view's edges are to be pinned to its superview.
+ @return An array of constraints added.
+ */
+- (NSArray *)autoPinEdgesToSuperviewEdgesOnAxis:(ALAxis)axis
+{
+    return [self autoPinEdgesToSuperviewEdgesOnAxis:axis withInset:0.0f];
+}
+
+/**
+ Pins the edges of the view to the on-axis edges of its superview with an inset.
+ ALAxisHorizontal corresponds to leading and trailing edge constraints, and ALAxisVertical corresponds to top and bottom edge constraints.
+ 
+ @param axis The axis on which the view's edges are to be pinned to its superview.
+ @param inset The amount to inset the view's edges from the superview's edges.
+ @return An array of constraints added.
+ */
+- (NSArray *)autoPinEdgesToSuperviewEdgesOnAxis:(ALAxis)axis withInset:(CGFloat)inset
+{
+    NSMutableArray *constraints = [NSMutableArray arrayWithCapacity:2];
+    switch (axis) {
+        case ALAxisHorizontal: {
+            [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:inset]];
+            [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:inset]];
+        }
+            break;
+        case ALAxisVertical: {
+            [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:inset]];
+            [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:inset]];
+        }
+            break;
+        default:
+            break;
+    }
+    return constraints;
+}
+
+/**
+ Pins the edges of the view to the edges of its superview.
+ 
+ @return An array of constraints added.
+ */
+- (NSArray *)autoPinEdgesToSuperviewEdges
+{
+    return [self autoPinEdgesToSuperviewEdgesWithInsets:UIEdgeInsetsZero];
+}
+
+/**
+ Pins the edges of the view to the edges of its superview, excluding one edge.
+ The insets.left corresponds to a leading edge constraint, and insets.right corresponds to a trailing edge constraint.
+ 
+ @param edge The edge of this view to exclude in pinning to the superview; this method will not apply any constraint to it.
+ @return An array of constraints added.
+ */
+- (NSArray *)autoPinEdgesToSuperviewEdgesExcludingEdge:(ALEdge)edge
+{
+    NSMutableArray *constraints = [NSMutableArray new];
+    if (edge != ALEdgeTop) {
+        [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeTop]];
+    }
+    if (edge != ALEdgeLeading && edge != ALEdgeLeft) {
+        [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeLeading]];
+    }
+    if (edge != ALEdgeBottom) {
+        [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeBottom]];
+    }
+    if (edge != ALEdgeTrailing && edge != ALEdgeRight) {
+        [constraints addObject:[self autoPinEdgeToSuperviewEdge:ALEdgeTrailing]];
+    }
+    return constraints;
 }
 
 /**
